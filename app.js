@@ -1,6 +1,7 @@
 // ==========================================
 // STORM STUDIO - APP.JS
-// Version 0.1
+// Version 0.2
+// Character Studio Upgrade
 // ==========================================
 
 const STORAGE_KEY = "stormStudioProject";
@@ -10,6 +11,7 @@ const state = {
     name: "Untitled Project",
     type: "trailer"
   },
+
   characters: [],
   scenes: []
 };
@@ -20,6 +22,7 @@ const state = {
 // ==========================================
 
 const $ = (selector) => document.querySelector(selector);
+
 const $$ = (selector) => document.querySelectorAll(selector);
 
 
@@ -28,7 +31,9 @@ const $$ = (selector) => document.querySelectorAll(selector);
 // ==========================================
 
 document.addEventListener("DOMContentLoaded", () => {
+
   loadProject();
+
   setupNavigation();
   setupProjectControls();
   setupModals();
@@ -39,18 +44,22 @@ document.addEventListener("DOMContentLoaded", () => {
   renderCharacters();
   renderScenes();
   renderTimeline();
+
   updateProjectUI();
+
 });
 
 
 // ==========================================
-// UNIQUE ID
+// ID GENERATOR
 // ==========================================
 
 function createId(prefix) {
+
   return `${prefix}_${Date.now()}_${Math.random()
     .toString(36)
     .substring(2, 8)}`;
+
 }
 
 
@@ -59,39 +68,47 @@ function createId(prefix) {
 // ==========================================
 
 function setupNavigation() {
+
   const navItems = $$(".nav-item");
 
   navItems.forEach((item) => {
+
     item.addEventListener("click", () => {
-      const sectionName = item.dataset.section;
 
-      if (!sectionName) return;
+      const section = item.dataset.section;
 
-      navigateTo(sectionName);
+      if (section) {
+        navigateTo(section);
+      }
+
     });
+
   });
+
 }
 
 
 function navigateTo(sectionName) {
-  const sections = $$(".page-section");
-  const navItems = $$(".nav-item");
 
-  sections.forEach((section) => {
-    section.classList.remove("active");
+  $$(".page-section").forEach((section) => {
 
-    if (section.id === sectionName) {
-      section.classList.add("active");
-    }
+    section.classList.toggle(
+      "active",
+      section.id === sectionName
+    );
+
   });
 
-  navItems.forEach((item) => {
-    item.classList.remove("active");
 
-    if (item.dataset.section === sectionName) {
-      item.classList.add("active");
-    }
+  $$(".nav-item").forEach((item) => {
+
+    item.classList.toggle(
+      "active",
+      item.dataset.section === sectionName
+    );
+
   });
+
 }
 
 
@@ -100,17 +117,22 @@ function navigateTo(sectionName) {
 // ==========================================
 
 function setupQuickCards() {
-  const cards = $$(".quick-card");
 
-  cards.forEach((card) => {
+  $$(".quick-card").forEach((card) => {
+
     card.addEventListener("click", () => {
-      const target = card.dataset.sectionTarget;
+
+      const target =
+        card.dataset.sectionTarget;
 
       if (target) {
         navigateTo(target);
       }
+
     });
+
   });
+
 }
 
 
@@ -119,41 +141,84 @@ function setupQuickCards() {
 // ==========================================
 
 function setupProjectControls() {
-  const projectNameInput = $("#projectName");
-  const projectNameDisplay = $("#projectNameDisplay");
 
-  if (projectNameInput) {
-    projectNameInput.addEventListener("input", () => {
-      const name =
-        projectNameInput.value.trim() || "Untitled Project";
+  const projectName =
+    $("#projectName");
 
-      state.project.name = name;
+  if (projectName) {
 
-      if (projectNameDisplay) {
-        projectNameDisplay.textContent = name;
+    projectName.addEventListener(
+      "input",
+      () => {
+
+        state.project.name =
+          projectName.value.trim() ||
+          "Untitled Project";
+
+        updateProjectUI();
+
       }
-    });
+    );
+
   }
 
-  const saveButton = $("#saveProjectBtn");
+
+  const projectType =
+    $("#projectType");
+
+  if (projectType) {
+
+    projectType.addEventListener(
+      "change",
+      () => {
+
+        state.project.type =
+          projectType.value;
+
+      }
+    );
+
+  }
+
+
+  const saveButton =
+    $("#saveProjectBtn");
 
   if (saveButton) {
-    saveButton.addEventListener("click", saveProject);
+
+    saveButton.addEventListener(
+      "click",
+      saveProject
+    );
+
   }
 
-  const newButton = $("#newProjectBtn");
+
+  const newButton =
+    $("#newProjectBtn");
 
   if (newButton) {
-    newButton.addEventListener("click", createNewProject);
+
+    newButton.addEventListener(
+      "click",
+      createNewProject
+    );
+
   }
 
-  const createSceneButton = $("#createSceneBtn");
+
+  const createSceneButton =
+    $("#createSceneBtn");
 
   if (createSceneButton) {
-    createSceneButton.addEventListener("click", () => {
-      openSceneModal();
-    });
+
+    createSceneButton.addEventListener(
+      "click",
+      openSceneModal
+    );
+
   }
+
 }
 
 
@@ -162,7 +227,9 @@ function setupProjectControls() {
 // ==========================================
 
 function saveProject() {
+
   try {
+
     localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify(state)
@@ -170,15 +237,21 @@ function saveProject() {
 
     updateProjectStatus("Saved");
 
-    showNotification("Project saved successfully.");
+    showNotification(
+      "Project saved successfully."
+    );
+
   } catch (error) {
+
     console.error(error);
 
     showNotification(
       "Project save nahi ho saka.",
       true
     );
+
   }
+
 }
 
 
@@ -187,31 +260,62 @@ function saveProject() {
 // ==========================================
 
 function loadProject() {
+
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
+
+    const saved =
+      localStorage.getItem(
+        STORAGE_KEY
+      );
 
     if (!saved) return;
 
-    const parsed = JSON.parse(saved);
+    const parsed =
+      JSON.parse(saved);
+
 
     if (parsed.project) {
+
       state.project = {
         ...state.project,
         ...parsed.project
       };
+
     }
 
-    if (Array.isArray(parsed.characters)) {
-      state.characters = parsed.characters;
+
+    if (
+      Array.isArray(
+        parsed.characters
+      )
+    ) {
+
+      state.characters =
+        parsed.characters;
+
     }
 
-    if (Array.isArray(parsed.scenes)) {
-      state.scenes = parsed.scenes;
+
+    if (
+      Array.isArray(
+        parsed.scenes
+      )
+    ) {
+
+      state.scenes =
+        parsed.scenes;
+
     }
 
   } catch (error) {
-    console.error("Project load error:", error);
+
+    console.error(
+      "Project load error:",
+      error
+    );
+
   }
+
 }
 
 
@@ -220,11 +324,14 @@ function loadProject() {
 // ==========================================
 
 function createNewProject() {
-  const confirmed = confirm(
-    "Create a new project? Current unsaved data will be replaced."
-  );
+
+  const confirmed =
+    confirm(
+      "Create a new project? Current saved data will be replaced."
+    );
 
   if (!confirmed) return;
+
 
   state.project = {
     name: "Untitled Project",
@@ -234,17 +341,24 @@ function createNewProject() {
   state.characters = [];
   state.scenes = [];
 
-  localStorage.removeItem(STORAGE_KEY);
 
-  updateProjectUI();
+  localStorage.removeItem(
+    STORAGE_KEY
+  );
+
 
   renderCharacters();
   renderScenes();
   renderTimeline();
 
+  updateProjectUI();
+
   navigateTo("dashboard");
 
-  showNotification("New project created.");
+  showNotification(
+    "New project created."
+  );
+
 }
 
 
@@ -253,33 +367,58 @@ function createNewProject() {
 // ==========================================
 
 function updateProjectUI() {
-  const projectNameInput = $("#projectName");
-  const projectNameDisplay = $("#projectNameDisplay");
 
-  if (projectNameInput) {
-    projectNameInput.value = state.project.name;
+  const nameInput =
+    $("#projectName");
+
+  const nameDisplay =
+    $("#projectNameDisplay");
+
+
+  if (nameInput) {
+
+    nameInput.value =
+      state.project.name;
+
   }
 
-  if (projectNameDisplay) {
-    projectNameDisplay.textContent = state.project.name;
+
+  if (nameDisplay) {
+
+    nameDisplay.textContent =
+      state.project.name;
+
   }
 
-  const projectType = $("#projectType");
+
+  const projectType =
+    $("#projectType");
 
   if (projectType) {
-    projectType.value = state.project.type;
+
+    projectType.value =
+      state.project.type;
+
   }
 
+
   updateProjectStatus("Ready");
+
 }
 
 
 function updateProjectStatus(status) {
-  const statusElement = $("#projectStatus");
 
-  if (statusElement) {
-    statusElement.textContent = status;
+  const element =
+    $("#projectStatus");
+
+  if (element) {
+
+    element.textContent =
+      status;
+
   }
+
 }
 
 
@@ -288,39 +427,70 @@ function updateProjectStatus(status) {
 // ==========================================
 
 function setupModals() {
-  $$("[data-close-modal]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const modalId = button.dataset.closeModal;
 
-      closeModal(modalId);
-    });
-  });
+  $$("[data-close-modal]")
+    .forEach((button) => {
 
-  $$(".modal").forEach((modal) => {
-    modal.addEventListener("click", (event) => {
-      if (event.target === modal) {
-        closeModal(modal.id);
-      }
+      button.addEventListener(
+        "click",
+        () => {
+
+          closeModal(
+            button.dataset.closeModal
+          );
+
+        }
+      );
+
     });
-  });
+
+
+  $$(".modal-overlay")
+    .forEach((overlay) => {
+
+      overlay.addEventListener(
+        "click",
+        (event) => {
+
+          if (
+            event.target === overlay
+          ) {
+
+            closeModal(
+              overlay.id
+            );
+
+          }
+
+        }
+      );
+
+    });
+
 }
 
 
-function openModal(modalId) {
-  const modal = document.getElementById(modalId);
+function openModal(id) {
+
+  const modal =
+    document.getElementById(id);
 
   if (!modal) return;
 
   modal.classList.add("active");
+
 }
 
 
-function closeModal(modalId) {
-  const modal = document.getElementById(modalId);
+function closeModal(id) {
+
+  const modal =
+    document.getElementById(id);
 
   if (!modal) return;
 
   modal.classList.remove("active");
+
 }
 
 
@@ -329,102 +499,265 @@ function closeModal(modalId) {
 // ==========================================
 
 function setupCharacterControls() {
-  const addButton = $("#addCharacterBtn");
-  const emptyButton = $("#emptyAddCharacterBtn");
-  const saveButton = $("#saveCharacterBtn");
+
+  const addButton =
+    $("#addCharacterBtn");
+
+  const emptyButton =
+    $("#emptyAddCharacterBtn");
+
+  const saveButton =
+    $("#saveCharacterBtn");
+
 
   if (addButton) {
-    addButton.addEventListener("click", openCharacterModal);
+
+    addButton.addEventListener(
+      "click",
+      openCharacterModal
+    );
+
   }
+
 
   if (emptyButton) {
-    emptyButton.addEventListener("click", openCharacterModal);
+
+    emptyButton.addEventListener(
+      "click",
+      openCharacterModal
+    );
+
   }
 
+
   if (saveButton) {
+
     saveButton.addEventListener(
       "click",
       saveCharacter
     );
+
   }
+
 }
 
+
+// ==========================================
+// OPEN CHARACTER MODAL
+// ==========================================
 
 function openCharacterModal() {
-  const name = $("#characterName");
-  const description = $("#characterDescription");
-  const image = $("#characterImage");
 
-  if (name) name.value = "";
-  if (description) description.value = "";
-  if (image) image.value = "";
+  const fields = [
 
-  openModal("characterModal");
+    "characterName",
+    "characterAppearance",
+    "characterClothing",
+    "characterBody",
+    "characterPersonality",
+    "characterDescription"
+
+  ];
+
+
+  fields.forEach((id) => {
+
+    const field =
+      document.getElementById(id);
+
+    if (field) {
+      field.value = "";
+    }
+
+  });
+
+
+  const image =
+    $("#characterImage");
+
+  if (image) {
+    image.value = "";
+  }
+
+
+  const lock =
+    $("#characterLock");
+
+  if (lock) {
+    lock.checked = true;
+  }
+
+
+  openModal(
+    "characterModal"
+  );
+
 }
 
 
-function saveCharacter() {
-  const nameInput = $("#characterName");
-  const descriptionInput = $("#characterDescription");
-  const imageInput = $("#characterImage");
+// ==========================================
+// SAVE CHARACTER
+// ==========================================
 
-  const name = nameInput?.value.trim();
-  const description =
-    descriptionInput?.value.trim() || "";
+function saveCharacter() {
+
+  const name =
+    $("#characterName")?.value.trim();
+
 
   if (!name) {
-    alert("Character name enter karein.");
+
+    alert(
+      "Character name enter karein."
+    );
+
     return;
+
   }
+
+
+  const appearance =
+    $("#characterAppearance")
+      ?.value.trim() || "";
+
+
+  const clothing =
+    $("#characterClothing")
+      ?.value.trim() || "";
+
+
+  const body =
+    $("#characterBody")
+      ?.value.trim() || "";
+
+
+  const personality =
+    $("#characterPersonality")
+      ?.value.trim() || "";
+
+
+  const description =
+    $("#characterDescription")
+      ?.value.trim() || "";
+
+
+  const characterLock =
+    $("#characterLock")
+      ?.checked ?? true;
+
+
+  const imageInput =
+    $("#characterImage");
+
 
   if (
     imageInput &&
     imageInput.files &&
     imageInput.files.length > 0
   ) {
-    const file = imageInput.files[0];
 
-    const reader = new FileReader();
+    const file =
+      imageInput.files[0];
 
-    reader.onload = function (event) {
-      addCharacter(
+    const reader =
+      new FileReader();
+
+
+    reader.onload = (event) => {
+
+      createCharacter(
         name,
+        appearance,
+        clothing,
+        body,
+        personality,
         description,
+        characterLock,
         event.target.result
       );
+
     };
 
+
     reader.readAsDataURL(file);
+
   } else {
-    addCharacter(
+
+    createCharacter(
       name,
+      appearance,
+      clothing,
+      body,
+      personality,
       description,
+      characterLock,
       ""
     );
+
   }
+
 }
 
 
-function addCharacter(name, description, image) {
+// ==========================================
+// CREATE CHARACTER
+// ==========================================
+
+function createCharacter(
+  name,
+  appearance,
+  clothing,
+  body,
+  personality,
+  description,
+  characterLock,
+  image
+) {
+
   const character = {
+
     id: createId("CHAR"),
+
     name,
+
+    appearance,
+
+    clothing,
+
+    body,
+
+    personality,
+
     description,
+
     image,
-    createdAt: new Date().toISOString()
+
+    locked: characterLock,
+
+    createdAt:
+      new Date().toISOString()
+
   };
 
-  state.characters.push(character);
+
+  state.characters.push(
+    character
+  );
+
 
   saveProject();
 
   renderCharacters();
 
-  closeModal("characterModal");
+  closeModal(
+    "characterModal"
+  );
+
 
   showNotification(
     `${name} character added.`
   );
+
 }
 
 
@@ -433,80 +766,181 @@ function addCharacter(name, description, image) {
 // ==========================================
 
 function renderCharacters() {
-  const grid = $("#characterGrid");
-  const emptyState = $("#characterEmptyState");
+
+  const grid =
+    $("#characterGrid");
+
+  const emptyState =
+    $("#characterEmptyState");
+
 
   if (!grid) return;
 
+
   grid.innerHTML = "";
 
-  if (state.characters.length === 0) {
+
+  if (
+    state.characters.length === 0
+  ) {
+
     if (emptyState) {
-      emptyState.style.display = "";
+
+      emptyState.style.display =
+        "";
+
     }
 
     return;
+
   }
+
 
   if (emptyState) {
-    emptyState.style.display = "none";
+
+    emptyState.style.display =
+      "none";
+
   }
 
-  state.characters.forEach((character) => {
-    const card = document.createElement("div");
 
-    card.className = "character-card";
+  state.characters.forEach(
+    (character) => {
 
-    const imageHTML = character.image
-      ? `<img src="${character.image}" alt="${escapeHTML(
-          character.name
-        )}">`
-      : `
-        <div class="character-placeholder">
-          ${escapeHTML(
-            character.name.charAt(0).toUpperCase()
-          )}
+      const card =
+        document.createElement(
+          "div"
+        );
+
+
+      card.className =
+        "character-card";
+
+
+      const imageHTML =
+        character.image
+
+          ? `
+            <img
+              src="${character.image}"
+              alt="${escapeHTML(
+                character.name
+              )}"
+            >
+          `
+
+          : `
+            <div class="character-placeholder">
+              ${escapeHTML(
+                character.name
+                  .charAt(0)
+                  .toUpperCase()
+              )}
+            </div>
+          `;
+
+
+      const lockBadge =
+        character.locked
+
+          ? `
+            <span class="character-lock-badge">
+              🔒 Locked
+            </span>
+          `
+
+          : `
+            <span class="character-lock-badge unlocked">
+              🔓 Unlocked
+            </span>
+          `;
+
+
+      card.innerHTML = `
+
+        <div class="character-image">
+
+          ${imageHTML}
+
         </div>
+
+
+        <div class="character-info">
+
+          <div class="character-title-row">
+
+            <h3>
+              ${escapeHTML(
+                character.name
+              )}
+            </h3>
+
+            ${lockBadge}
+
+          </div>
+
+
+          <p>
+            ${escapeHTML(
+              character.description ||
+              character.appearance ||
+              "No description added."
+            )}
+          </p>
+
+
+          <div class="character-meta">
+
+            <span>
+              ID:
+              ${escapeHTML(
+                character.id
+              )}
+            </span>
+
+          </div>
+
+
+          <div class="card-actions">
+
+            <button
+              class="danger-btn"
+              data-delete-character="${character.id}"
+              type="button"
+            >
+              Delete
+            </button>
+
+          </div>
+
+        </div>
+
       `;
 
-    card.innerHTML = `
-      <div class="character-image">
-        ${imageHTML}
-      </div>
 
-      <div class="character-info">
-        <h3>${escapeHTML(character.name)}</h3>
+      grid.appendChild(card);
 
-        <p>
-          ${escapeHTML(
-            character.description ||
-              "No description added."
-          )}
-        </p>
-
-        <div class="card-actions">
-          <button
-            class="danger-btn"
-            data-delete-character="${character.id}"
-          >
-            Delete
-          </button>
-        </div>
-      </div>
-    `;
-
-    grid.appendChild(card);
-  });
-
-  $$("[data-delete-character]").forEach(
-    (button) => {
-      button.addEventListener("click", () => {
-        deleteCharacter(
-          button.dataset.deleteCharacter
-        );
-      });
     }
   );
+
+
+  $$("[data-delete-character]")
+    .forEach((button) => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          deleteCharacter(
+            button.dataset
+              .deleteCharacter
+          );
+
+        }
+      );
+
+    });
+
 }
 
 
@@ -515,28 +949,42 @@ function renderCharacters() {
 // ==========================================
 
 function deleteCharacter(id) {
-  const character = state.characters.find(
-    (item) => item.id === id
-  );
+
+  const character =
+    state.characters.find(
+      (item) =>
+        item.id === id
+    );
+
 
   if (!character) return;
 
-  const confirmed = confirm(
-    `Delete ${character.name}?`
-  );
+
+  const confirmed =
+    confirm(
+      `Delete ${character.name}?`
+    );
+
 
   if (!confirmed) return;
 
+
   state.characters =
     state.characters.filter(
-      (item) => item.id !== id
+      (item) =>
+        item.id !== id
     );
+
 
   saveProject();
 
   renderCharacters();
 
-  showNotification("Character deleted.");
+
+  showNotification(
+    "Character deleted."
+  );
+
 }
 
 
@@ -545,60 +993,91 @@ function deleteCharacter(id) {
 // ==========================================
 
 function setupSceneControls() {
-  const addButton = $("#addSceneBtn");
-  const emptyButton = $("#emptyAddSceneBtn");
-  const saveButton = $("#saveSceneBtn");
+
+  const addButton =
+    $("#addSceneBtn");
+
+  const emptyButton =
+    $("#emptyAddSceneBtn");
+
+  const saveButton =
+    $("#saveSceneBtn");
+
 
   if (addButton) {
+
     addButton.addEventListener(
       "click",
       openSceneModal
     );
+
   }
 
+
   if (emptyButton) {
+
     emptyButton.addEventListener(
       "click",
       openSceneModal
     );
+
   }
 
+
   if (saveButton) {
+
     saveButton.addEventListener(
       "click",
       saveScene
     );
+
   }
+
 }
 
 
-function openSceneModal() {
-  const name = $("#sceneName");
-  const duration = $("#sceneDuration");
-  const prompt = $("#scenePrompt");
-  const camera = $("#cameraStyle");
-  const mood = $("#sceneMood");
+// ==========================================
+// OPEN SCENE MODAL
+// ==========================================
 
-  if (name) name.value = "";
+function openSceneModal() {
+
+  const name =
+    $("#sceneName");
+
+  const duration =
+    $("#sceneDuration");
+
+  const prompt =
+    $("#scenePrompt");
+
+
+  if (name) {
+    name.value = "";
+  }
+
 
   if (duration) {
+
     const defaultDuration =
-      $("#defaultDuration")?.value || 10;
+      $("#defaultDuration")
+        ?.value || "10";
 
-    duration.value = defaultDuration;
+    duration.value =
+      defaultDuration;
+
   }
 
-  if (prompt) prompt.value = "";
 
-  if (camera) {
-    camera.selectedIndex = 0;
+  if (prompt) {
+    prompt.value = "";
   }
 
-  if (mood) {
-    mood.selectedIndex = 0;
-  }
 
-  openModal("sceneModal");
+  openModal(
+    "sceneModal"
+  );
+
 }
 
 
@@ -607,50 +1086,96 @@ function openSceneModal() {
 // ==========================================
 
 function saveScene() {
-  const name = $("#sceneName")?.value.trim();
+
+  const name =
+    $("#sceneName")
+      ?.value.trim();
+
+
   const duration =
-    Number($("#sceneDuration")?.value) || 10;
+    Number(
+      $("#sceneDuration")
+        ?.value
+    ) || 10;
+
+
   const prompt =
-    $("#scenePrompt")?.value.trim() || "";
+    $("#scenePrompt")
+      ?.value.trim() || "";
+
 
   const camera =
-    $("#cameraStyle")?.value || "Cinematic";
+    $("#cameraStyle")
+      ?.value || "Cinematic";
+
 
   const mood =
-    $("#sceneMood")?.value || "Epic";
+    $("#sceneMood")
+      ?.value || "Epic";
+
 
   if (!name) {
-    alert("Scene name enter karein.");
+
+    alert(
+      "Scene name enter karein."
+    );
+
     return;
+
   }
+
 
   if (!prompt) {
-    alert("Scene prompt enter karein.");
+
+    alert(
+      "Scene prompt enter karein."
+    );
+
     return;
+
   }
 
+
   const scene = {
+
     id: createId("SCENE"),
+
     name,
+
     duration,
+
     prompt,
+
     camera,
+
     mood,
-    createdAt: new Date().toISOString()
+
+    createdAt:
+      new Date().toISOString()
+
   };
 
-  state.scenes.push(scene);
+
+  state.scenes.push(
+    scene
+  );
+
 
   saveProject();
 
   renderScenes();
+
   renderTimeline();
 
-  closeModal("sceneModal");
+  closeModal(
+    "sceneModal"
+  );
+
 
   showNotification(
     `${name} scene added.`
   );
+
 }
 
 
@@ -659,69 +1184,168 @@ function saveScene() {
 // ==========================================
 
 function renderScenes() {
-  const grid = $("#sceneGrid");
+
+  const grid =
+    $("#sceneGrid");
+
 
   if (!grid) return;
 
+
   grid.innerHTML = "";
 
-  if (state.scenes.length === 0) {
+
+  if (
+    state.scenes.length === 0
+  ) {
+
     grid.innerHTML = `
-      <div class="empty-message">
-        No scenes created yet.
-      </div>
-    `;
 
-    return;
-  }
+      <div class="empty-state">
 
-  state.scenes.forEach((scene, index) => {
-    const card =
-      document.createElement("div");
+        <div class="empty-icon">
+          🎥
+        </div>
 
-    card.className = "scene-card";
-
-    card.innerHTML = `
-      <div class="scene-number">
-        ${String(index + 1).padStart(2, "0")}
-      </div>
-
-      <div class="scene-content">
-        <h3>${escapeHTML(scene.name)}</h3>
+        <h3>
+          No scenes created
+        </h3>
 
         <p>
-          ${escapeHTML(scene.prompt)}
+          Create your first cinematic scene.
         </p>
 
-        <div class="scene-meta">
-          <span>${scene.duration}s</span>
-          <span>${escapeHTML(scene.camera)}</span>
-          <span>${escapeHTML(scene.mood)}</span>
-        </div>
+        <button
+          class="btn btn-primary"
+          id="emptyAddSceneBtn"
+          type="button"
+        >
+          Create Scene
+        </button>
 
-        <div class="card-actions">
-          <button
-            class="danger-btn"
-            data-delete-scene="${scene.id}"
-          >
-            Delete
-          </button>
-        </div>
       </div>
+
     `;
 
-    grid.appendChild(card);
-  });
 
-  $$("[data-delete-scene]").forEach(
-    (button) => {
-      button.addEventListener("click", () => {
-        deleteScene(
-          button.dataset.deleteScene
+    const button =
+      $("#emptyAddSceneBtn");
+
+    if (button) {
+
+      button.addEventListener(
+        "click",
+        openSceneModal
+      );
+
+    }
+
+
+    return;
+
+  }
+
+
+  state.scenes.forEach(
+    (scene, index) => {
+
+      const card =
+        document.createElement(
+          "div"
         );
-      });
+
+
+      card.className =
+        "scene-card";
+
+
+      card.innerHTML = `
+
+        <div class="scene-number">
+          ${String(index + 1).padStart(
+            2,
+            "0"
+          )}
+        </div>
+
+
+        <div class="scene-content">
+
+          <h3>
+            ${escapeHTML(
+              scene.name
+            )}
+          </h3>
+
+
+          <p>
+            ${escapeHTML(
+              scene.prompt
+            )}
+          </p>
+
+
+          <div class="scene-meta">
+
+            <span>
+              ${scene.duration}s
+            </span>
+
+            <span>
+              ${escapeHTML(
+                scene.camera
+              )}
+            </span>
+
+            <span>
+              ${escapeHTML(
+                scene.mood
+              )}
+            </span>
+
+          </div>
+
+
+          <div class="card-actions">
+
+            <button
+              class="danger-btn"
+              data-delete-scene="${scene.id}"
+              type="button"
+            >
+              Delete
+            </button>
+
+          </div>
+
+        </div>
+
+      `;
+
+
+      grid.appendChild(card);
+
     }
   );
+
+
+  $$("[data-delete-scene]")
+    .forEach((button) => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          deleteScene(
+            button.dataset
+              .deleteScene
+          );
+
+        }
+      );
+
+    });
+
 }
 
 
@@ -730,29 +1354,44 @@ function renderScenes() {
 // ==========================================
 
 function deleteScene(id) {
-  const scene = state.scenes.find(
-    (item) => item.id === id
-  );
+
+  const scene =
+    state.scenes.find(
+      (item) =>
+        item.id === id
+    );
+
 
   if (!scene) return;
 
-  const confirmed = confirm(
-    `Delete ${scene.name}?`
-  );
+
+  const confirmed =
+    confirm(
+      `Delete ${scene.name}?`
+    );
+
 
   if (!confirmed) return;
 
+
   state.scenes =
     state.scenes.filter(
-      (item) => item.id !== id
+      (item) =>
+        item.id !== id
     );
+
 
   saveProject();
 
   renderScenes();
+
   renderTimeline();
 
-  showNotification("Scene deleted.");
+
+  showNotification(
+    "Scene deleted."
+  );
+
 }
 
 
@@ -761,53 +1400,135 @@ function deleteScene(id) {
 // ==========================================
 
 function renderTimeline() {
-  const container = $("#timelineContainer");
-  const totalDurationElement =
+
+  const container =
+    $("#timelineContainer");
+
+  const totalElement =
     $("#totalDuration");
+
 
   if (!container) return;
 
+
   container.innerHTML = "";
 
-  let totalDuration = 0;
-
-  state.scenes.forEach((scene, index) => {
-    totalDuration += Number(scene.duration) || 0;
-
-    const item =
-      document.createElement("div");
-
-    item.className = "timeline-item";
-
-    item.innerHTML = `
-      <div class="timeline-index">
-        ${index + 1}
-      </div>
-
-      <div class="timeline-info">
-        <strong>
-          ${escapeHTML(scene.name)}
-        </strong>
-
-        <span>
-          ${scene.duration}s
-        </span>
-      </div>
-
-      <div class="timeline-prompt">
-        ${escapeHTML(scene.prompt)}
-      </div>
-    `;
-
-    container.appendChild(item);
-  });
 
   if (
-    totalDurationElement
+    state.scenes.length === 0
   ) {
-    totalDurationElement.textContent =
-      `${totalDuration}s`;
+
+    container.innerHTML = `
+
+      <div class="timeline-empty">
+
+        <span>
+          🎞️
+        </span>
+
+        <h3>
+          Timeline is empty
+        </h3>
+
+        <p>
+          Your generated scenes will appear here.
+        </p>
+
+      </div>
+
+    `;
+
+    if (totalElement) {
+      totalElement.textContent =
+        "00:00";
+    }
+
+    return;
+
   }
+
+
+  let totalSeconds = 0;
+
+
+  state.scenes.forEach(
+    (scene, index) => {
+
+      totalSeconds +=
+        Number(scene.duration) || 0;
+
+
+      const item =
+        document.createElement(
+          "div"
+        );
+
+
+      item.className =
+        "timeline-item";
+
+
+      item.innerHTML = `
+
+        <div class="timeline-index">
+          ${index + 1}
+        </div>
+
+
+        <div class="timeline-info">
+
+          <strong>
+            ${escapeHTML(
+              scene.name
+            )}
+          </strong>
+
+          <span>
+            ${scene.duration}s
+          </span>
+
+        </div>
+
+
+        <div class="timeline-prompt">
+
+          ${escapeHTML(
+            scene.prompt
+          )}
+
+        </div>
+
+      `;
+
+
+      container.appendChild(item);
+
+    }
+  );
+
+
+  if (totalElement) {
+
+    const minutes =
+      Math.floor(
+        totalSeconds / 60
+      );
+
+    const seconds =
+      totalSeconds % 60;
+
+
+    totalElement.textContent =
+      `${String(minutes).padStart(
+        2,
+        "0"
+      )}:${String(seconds).padStart(
+        2,
+        "0"
+      )}`;
+
+  }
+
 }
 
 
@@ -819,84 +1540,136 @@ function showNotification(
   message,
   isError = false
 ) {
-  const existing =
+
+  const old =
     document.querySelector(
       ".storm-notification"
     );
 
-  if (existing) {
-    existing.remove();
+
+  if (old) {
+    old.remove();
   }
 
+
   const notification =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
+
 
   notification.className =
     "storm-notification";
 
-  notification.textContent = message;
 
-  if (isError) {
-    notification.style.borderColor =
-      "#ff4d6d";
-  }
+  notification.textContent =
+    message;
+
 
   Object.assign(
     notification.style,
     {
+
       position: "fixed",
+
       right: "24px",
+
       bottom: "24px",
+
       zIndex: "9999",
+
       padding: "14px 20px",
+
       borderRadius: "10px",
+
       background: "#111827",
+
       color: "#ffffff",
-      border: "1px solid #334155",
+
+      border:
+        isError
+          ? "1px solid #ff4d6d"
+          : "1px solid #334155",
+
       boxShadow:
         "0 10px 30px rgba(0,0,0,.35)",
+
       fontSize: "14px"
+
     }
   );
+
 
   document.body.appendChild(
     notification
   );
 
+
   setTimeout(() => {
+
     notification.remove();
+
   }, 2500);
+
 }
 
 
 // ==========================================
-// SECURITY / HTML ESCAPE
+// HTML ESCAPE
 // ==========================================
 
 function escapeHTML(value) {
+
   return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
+
 }
 
 
 // ==========================================
-// AUTO SAVE BEFORE LEAVING
+// AUTO SAVE
 // ==========================================
 
 window.addEventListener(
   "beforeunload",
   () => {
+
     try {
+
       localStorage.setItem(
         STORAGE_KEY,
         JSON.stringify(state)
       );
+
     } catch (error) {
+
       console.error(error);
+
     }
+
   }
 );
