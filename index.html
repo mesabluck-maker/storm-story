@@ -767,25 +767,30 @@
         id="characterModal"
     >
 
-        <div class="modal">
+        <div class="modal modal-large">
 
             <div class="modal-header">
 
                 <div>
 
                     <span class="eyebrow">
-                        CHARACTER
+                        CHARACTER STUDIO
                     </span>
 
                     <h3>
-                        Add Character
+                        Create Character
                     </h3>
+
+                    <p>
+                        Build a reusable cinematic character profile.
+                    </p>
 
                 </div>
 
                 <button
                     class="modal-close"
                     data-close-modal="characterModal"
+                    type="button"
                 >
                     ×
                 </button>
@@ -795,47 +800,162 @@
 
             <div class="modal-body">
 
-                <div class="form-group">
+                <div class="form-grid">
 
-                    <label for="characterName">
-                        Character Name
-                    </label>
+                    <!-- CHARACTER NAME -->
 
-                    <input
-                        type="text"
-                        id="characterName"
-                        placeholder="Example: Zak S2"
-                    >
+                    <div class="form-group full-width">
 
-                </div>
+                        <label for="characterName">
+                            Character Name
+                        </label>
 
+                        <input
+                            type="text"
+                            id="characterName"
+                            placeholder="Example: Zak"
+                        >
 
-                <div class="form-group">
-
-                    <label for="characterDescription">
-                        Character Description
-                    </label>
-
-                    <textarea
-                        id="characterDescription"
-                        rows="5"
-                        placeholder="Describe the character design, clothing, personality and visual identity..."
-                    ></textarea>
-
-                </div>
+                    </div>
 
 
-                <div class="form-group">
+                    <!-- REFERENCE IMAGE -->
 
-                    <label for="characterImage">
-                        Reference Image
-                    </label>
+                    <div class="form-group full-width">
 
-                    <input
-                        type="file"
-                        id="characterImage"
-                        accept="image/png,image/jpeg,image/webp"
-                    >
+                        <label for="characterImage">
+                            Reference Image
+                        </label>
+
+                        <input
+                            type="file"
+                            id="characterImage"
+                            accept="image/png,image/jpeg,image/webp"
+                        >
+
+                        <small>
+                            Use a clear character reference image for
+                            future AI consistency.
+                        </small>
+
+                    </div>
+
+
+                    <!-- APPEARANCE -->
+
+                    <div class="form-group">
+
+                        <label for="characterAppearance">
+                            Appearance
+                        </label>
+
+                        <textarea
+                            id="characterAppearance"
+                            rows="4"
+                            placeholder="Face, hair, eyes, skin, distinctive features..."
+                        ></textarea>
+
+                    </div>
+
+
+                    <!-- CLOTHING -->
+
+                    <div class="form-group">
+
+                        <label for="characterClothing">
+                            Clothing
+                        </label>
+
+                        <textarea
+                            id="characterClothing"
+                            rows="4"
+                            placeholder="Outfit, colors, accessories, shoes..."
+                        ></textarea>
+
+                    </div>
+
+
+                    <!-- BODY / BUILD -->
+
+                    <div class="form-group">
+
+                        <label for="characterBody">
+                            Body / Build
+                        </label>
+
+                        <textarea
+                            id="characterBody"
+                            rows="4"
+                            placeholder="Height, body type, age appearance..."
+                        ></textarea>
+
+                    </div>
+
+
+                    <!-- PERSONALITY -->
+
+                    <div class="form-group">
+
+                        <label for="characterPersonality">
+                            Personality
+                        </label>
+
+                        <textarea
+                            id="characterPersonality"
+                            rows="4"
+                            placeholder="Brave, funny, serious, mysterious..."
+                        ></textarea>
+
+                    </div>
+
+
+                    <!-- DESCRIPTION -->
+
+                    <div class="form-group full-width">
+
+                        <label for="characterDescription">
+                            Character Description
+                        </label>
+
+                        <textarea
+                            id="characterDescription"
+                            rows="4"
+                            placeholder="Overall cinematic description..."
+                        ></textarea>
+
+                    </div>
+
+
+                    <!-- CHARACTER LOCK -->
+
+                    <div class="character-lock full-width">
+
+                        <div>
+
+                            <strong>
+                                🔒 Character Lock
+                            </strong>
+
+                            <p>
+                                Keep this character profile consistent
+                                across future scenes and generations.
+                            </p>
+
+                        </div>
+
+                        <label class="switch">
+
+                            <input
+                                type="checkbox"
+                                id="characterLock"
+                                checked
+                            >
+
+                            <span class="slider"></span>
+
+                        </label>
+
+                    </div>
 
                 </div>
 
@@ -847,6 +967,7 @@
                 <button
                     class="btn btn-secondary"
                     data-close-modal="characterModal"
+                    type="button"
                 >
                     Cancel
                 </button>
@@ -854,6 +975,7 @@
                 <button
                     class="btn btn-primary"
                     id="saveCharacterBtn"
+                    type="button"
                 >
                     Save Character
                 </button>
